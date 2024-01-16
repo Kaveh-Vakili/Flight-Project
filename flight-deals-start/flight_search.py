@@ -46,3 +46,20 @@ class FlightSearch:
             "one_for_city": 1,
             "max_stopovers": MAX_STOPOVERS
         }
+        
+        response = requests.get(url=search_url, params=params, headers=self.headers)
+        response.raise_for_status()
+        data = response.json()["data"][0]
+        
+        flight = fd.FlightData(
+            origin_city=data["route"][0]["cityFrom"],
+            origin_airport=data["route"][0]["flyFrom"],
+            destination_city=data["route"][0]["cityTo"],
+            destination_airport=data["route"][0]["flyTo"],
+            leave_date=data["route"][0]["local_departure"].split("T")[0],
+            return_date=data["route"][1]["local_departure"].split("T")[0],
+            price=data["price"]
+        )
+        
+        print(f"Found a flight to {flight.destination_city} for {flight.price} {CURRENCY}.")
+        return flight
